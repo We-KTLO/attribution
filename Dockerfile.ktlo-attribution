@@ -1,0 +1,18 @@
+# check=skip=InvalidDefaultArgInFrom
+# The NVIDIA Attribution Service as KTLO ships it (deploy/charts/ktlo, attribution.enabled).
+#
+# Built in two steps from the upstream source at a release tag (scripts/build-attribution-image.sh):
+#   1. upstream's own service/service-app/Dockerfile, unchanged, tagged UPSTREAM_IMAGE;
+#   2. this layer on top, built with the SAME upstream checkout as its context, which adds
+#      upstream's THIRD_PARTY_NOTICES.md beside the LICENSE the upstream image already carries
+#      (Apache-2.0 redistribution), and runs the Service as a non-root user with DuckDB's
+#      spill directory on a writable path.
+# The upstream image is linux/amd64 only here (no emulation on the build hosts).
+# UPSTREAM_IMAGE has no default: the base is always the image step 1 just built from the pinned
+# upstream tag, never a registry pull, so there is no external reference to pin here. The image
+# the chart deploys is pinned by digest (attribution.image.digest), which pin-lint enforces.
+ARG UPSTREAM_IMAGE
+FROM ${UPSTREAM_IMAGE}
+COPY THIRD_PARTY_NOTICES.md /licenses/THIRD_PARTY_NOTICES.md
+ENV ATTRIBUTOR_DUCKDB_TEMP_ROOT=/tmp
+USER 65532:65532

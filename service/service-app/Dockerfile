@@ -31,7 +31,7 @@ COPY service/service-app/ /app/
 
 
 # Sync the project
-RUN --mount=type=cache,target=/root/.cache/uv \
+RUN \
     uv sync --frozen --no-editable --no-dev
 
 FROM ${BASE_IMAGE}
